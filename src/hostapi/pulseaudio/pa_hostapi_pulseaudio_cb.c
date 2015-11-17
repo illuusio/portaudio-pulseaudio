@@ -97,36 +97,36 @@ void PulseaudioStreamReadCb(pa_stream *s, size_t length, void *userdata)
         return;
     }
 
-     memset(l_ptrStream->inBuffer, 0x00, PULSEAUDIO_BUFFER_SIZE);
+    memset(l_ptrStream->inBuffer, 0x00, PULSEAUDIO_BUFFER_SIZE);
 
 
-        PaUtil_BeginCpuLoadMeasurement(&l_ptrStream->cpuLoadMeasurer);
+    PaUtil_BeginCpuLoadMeasurement(&l_ptrStream->cpuLoadMeasurer);
 
-        while (pa_stream_readable_size(s) > 0)
+    while (pa_stream_readable_size(s) > 0)
+    {
+        l_ptrSampleData = NULL;
+
+        if(pa_stream_peek(s, &l_ptrSampleData, &l_lDataSize))
         {
-            l_ptrSampleData = NULL;
-
-            if(pa_stream_peek(s, &l_ptrSampleData, &l_lDataSize))
-            {
-                PA_DEBUG(("Portaudio %s: Can't read audio!\n", __FUNCTION__));
-                return;
-
-            }
-
-            if (l_lDataSize > 0 &&  l_ptrSampleData)
-            {
-                memcpy(l_ptrStream->inBuffer + l_lBufferSize, l_ptrSampleData, l_lDataSize);
-                l_lBufferSize += l_lDataSize;
-            }
-            else
-            {
-                PA_DEBUG(("Portaudio %s: Can't read!\n", __FUNCTION__));
-            }
-
-
-            pa_stream_drop(s);
+            PA_DEBUG(("Portaudio %s: Can't read audio!\n", __FUNCTION__));
+            return;
 
         }
+
+        if (l_lDataSize > 0 &&  l_ptrSampleData)
+        {
+            memcpy(l_ptrStream->inBuffer + l_lBufferSize, l_ptrSampleData, l_lDataSize);
+            l_lBufferSize += l_lDataSize;
+        }
+        else
+        {
+            PA_DEBUG(("Portaudio %s: Can't read!\n", __FUNCTION__));
+        }
+
+
+        pa_stream_drop(s);
+
+    }
 
     if(l_ptrStream->bufferProcessor.streamCallback != NULL)
     {
@@ -192,7 +192,7 @@ void PulseaudioStreamWriteCb(pa_stream *s, size_t length, void *userdata)
         if ( l_iReadCount >= (length * l_ptrStream->outputFrameSize))
         {
             PaUtil_ReadRingBuffer( &l_ptrStream->outputRing, l_ptrStream->outBuffer, length);
-        } 
+        }
         else if ( l_iReadCount < length && l_iReadCount > 0)
         {
             PaUtil_ReadRingBuffer( &l_ptrStream->outputRing, l_ptrStream->outBuffer, l_iReadCount);
@@ -345,7 +345,7 @@ PaError PulseaudioStartStreamCb(PaStream *s)
         stream->bufferAttr.tlength = pa_usec_to_bytes(stream->latency, &stream->outSampleSpec);
 
         PA_UNLESS(stream->outBuffer = PaUtil_AllocateMemory(PULSEAUDIO_BUFFER_SIZE),
-                   paInsufficientMemory);
+                  paInsufficientMemory);
 
         if(stream->device != paNoDevice)
         {
@@ -373,7 +373,7 @@ PaError PulseaudioStartStreamCb(PaStream *s)
         stream->bufferAttr.tlength = pa_usec_to_bytes(stream->latency, &stream->inSampleSpec);
 
         PA_UNLESS(stream->inBuffer = PaUtil_AllocateMemory(PULSEAUDIO_BUFFER_SIZE),
-                   paInsufficientMemory);
+                  paInsufficientMemory);
 
         pa_stream_connect_record(stream->inStream, l_ptrPulseaudioHostApi->pulseaudioDeviceNames[stream->device], &stream->bufferAttr,
                                  PA_STREAM_INTERPOLATE_TIMING

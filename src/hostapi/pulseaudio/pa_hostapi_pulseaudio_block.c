@@ -57,8 +57,8 @@
 */
 
 PaError PulseaudioReadStreamBlock(PaStream* s,
-                           void *buffer,
-                           unsigned long frames)
+                                  void *buffer,
+                                  unsigned long frames)
 {
     PaPulseaudioStream *l_ptrStream = (PaPulseaudioStream*)s;
     PaPulseaudioHostApiRepresentation *l_ptrPulseaudioHostApi = l_ptrStream->hostapi;
@@ -71,31 +71,32 @@ PaError PulseaudioReadStreamBlock(PaStream* s,
 
 
 
-    while (l_lLength > 0) {
+    while (l_lLength > 0)
+    {
         if( PaUtil_GetRingBufferReadAvailable(&l_ptrStream->inputRing) > l_lLength)
         {
-          l_iRet = PaUtil_ReadRingBuffer(&l_ptrStream->inputRing, l_ptrData, l_lLength);
-          l_lLength = 0;
+            l_iRet = PaUtil_ReadRingBuffer(&l_ptrStream->inputRing, l_ptrData, l_lLength);
+            l_lLength = 0;
         }
         else
         {
-          l_lReadable = PaUtil_GetRingBufferReadAvailable(&l_ptrStream->inputRing);
-          l_iRet = PaUtil_ReadRingBuffer(&l_ptrStream->inputRing, l_ptrData, l_lReadable);
-          l_ptrData += l_lReadable;
-          l_lLength -= l_lReadable;
+            l_lReadable = PaUtil_GetRingBufferReadAvailable(&l_ptrStream->inputRing);
+            l_iRet = PaUtil_ReadRingBuffer(&l_ptrStream->inputRing, l_ptrData, l_lReadable);
+            l_ptrData += l_lReadable;
+            l_lLength -= l_lReadable;
         }
-      
+
         pa_threaded_mainloop_wait(l_ptrStream->mainloop);
     }
 
     pa_threaded_mainloop_unlock(l_ptrStream->mainloop);
-return paNoError;
+    return paNoError;
 }
 
 
 PaError PulseaudioWriteStreamBlock(PaStream* s,
-                            const void *buffer,
-                            unsigned long frames)
+                                   const void *buffer,
+                                   unsigned long frames)
 {
 
     PaPulseaudioStream *l_ptrStream = (PaPulseaudioStream*)s;
@@ -111,20 +112,21 @@ PaError PulseaudioWriteStreamBlock(PaStream* s,
     l_ptrData += PaUtil_GetRingBufferWriteAvailable(&l_ptrStream->outputRing);
     l_iRet = PaUtil_WriteRingBuffer(&l_ptrStream->outputRing, buffer, PaUtil_GetRingBufferWriteAvailable(&l_ptrStream->outputRing));
 
-    while (l_lLength > 0) {
+    while (l_lLength > 0)
+    {
         if( PaUtil_GetRingBufferWriteAvailable(&l_ptrStream->outputRing) > l_lLength)
         {
-          l_iRet = PaUtil_WriteRingBuffer(&l_ptrStream->outputRing, l_ptrData, l_lLength);
-          l_lLength = 0;
+            l_iRet = PaUtil_WriteRingBuffer(&l_ptrStream->outputRing, l_ptrData, l_lLength);
+            l_lLength = 0;
         }
         else
         {
-          l_lWritable = PaUtil_GetRingBufferWriteAvailable(&l_ptrStream->outputRing);
-          l_iRet = PaUtil_WriteRingBuffer(&l_ptrStream->outputRing, l_ptrData, l_lWritable);
-          l_ptrData += l_lWritable;
-          l_lLength -= l_lWritable;
+            l_lWritable = PaUtil_GetRingBufferWriteAvailable(&l_ptrStream->outputRing);
+            l_iRet = PaUtil_WriteRingBuffer(&l_ptrStream->outputRing, l_ptrData, l_lWritable);
+            l_ptrData += l_lWritable;
+            l_lLength -= l_lWritable;
         }
-      
+
         pa_threaded_mainloop_wait(l_ptrStream->mainloop);
     }
 

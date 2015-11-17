@@ -109,19 +109,19 @@ static void Terminate(struct PaUtilHostApiRepresentation *hostApi);
 
 
 static PaError IsFormatSupported(struct PaUtilHostApiRepresentation *hostApi,
-                                  const PaStreamParameters *inputParameters,
-                                  const PaStreamParameters *outputParameters,
-                                  double sampleRate);
+                                 const PaStreamParameters *inputParameters,
+                                 const PaStreamParameters *outputParameters,
+                                 double sampleRate);
 
 static PaError OpenStream(struct PaUtilHostApiRepresentation *hostApi,
-                           PaStream** s,
-                           const PaStreamParameters *inputParameters,
-                           const PaStreamParameters *outputParameters,
-                           double sampleRate,
-                           unsigned long framesPerBuffer,
-                           PaStreamFlags streamFlags,
-                           PaStreamCallback *streamCallback,
-                           void *userData);
+                          PaStream** s,
+                          const PaStreamParameters *inputParameters,
+                          const PaStreamParameters *outputParameters,
+                          double sampleRate,
+                          unsigned long framesPerBuffer,
+                          PaStreamFlags streamFlags,
+                          PaStreamCallback *streamCallback,
+                          void *userData);
 
 
 static PaError IsStreamStopped(PaStream *s);

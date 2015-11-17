@@ -197,13 +197,13 @@ void PulseaudioSinkListCb(pa_context *c, const pa_sink_info *l, int eol, void *u
     }
 
     PA_UNLESS(l_ptrHostApi->pulseaudioDeviceNames[l_ptrHostApi->deviceCount] = (char*)PaUtil_GroupAllocateMemory(l_ptrHostApi->allocations,
-               strnlen(l->name, 1024) + 1), paInsufficientMemory);
+              strnlen(l->name, 1024) + 1), paInsufficientMemory);
 
     memset(l_ptrHostApi->pulseaudioDeviceNames[l_ptrHostApi->deviceCount], 0x00, strnlen(l->name, 1024) + 1);
     strncpy((char *)l_ptrHostApi->pulseaudioDeviceNames[l_ptrHostApi->deviceCount], l->name, strnlen(l->name, 1024));
 
     PA_UNLESS(l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].name = (char*)PaUtil_GroupAllocateMemory(l_ptrHostApi->allocations,
-               strnlen(l_strName, 1024) + 1), paInsufficientMemory);
+              strnlen(l_strName, 1024) + 1), paInsufficientMemory);
 
     memset((char *)l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].name, 0x00, strnlen(l_strName, 1024) + 1);
     strncpy((char *)l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].name, l_strName, strnlen(l_strName, 1024));
@@ -251,13 +251,13 @@ void PulseaudioSourceListCb(pa_context *c, const pa_source_info *l, int eol, voi
     printf("%s Source name: %s (%s)\n", __FUNCTION__, l->name, l->description);
 
     PA_UNLESS(l_ptrHostApi->pulseaudioDeviceNames[l_ptrHostApi->deviceCount] = (char*)PaUtil_GroupAllocateMemory(l_ptrHostApi->allocations,
-               strnlen(l->name, 1024) + 1), paInsufficientMemory);
+              strnlen(l->name, 1024) + 1), paInsufficientMemory);
 
     memset(l_ptrHostApi->pulseaudioDeviceNames[l_ptrHostApi->deviceCount], 0x00, strnlen(l->name, 1024) + 1);
     strncpy((char *)l_ptrHostApi->pulseaudioDeviceNames[l_ptrHostApi->deviceCount], l->name, strnlen(l->name, 1024));
 
     PA_UNLESS(l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].name = (char*)PaUtil_GroupAllocateMemory(l_ptrHostApi->allocations,
-               strnlen(l_strName, 1024) + 1), paInsufficientMemory);
+              strnlen(l_strName, 1024) + 1), paInsufficientMemory);
 
     memset((char *)l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].name, 0x00, strnlen(l_strName, 1024) + 1);
     strncpy((char *)l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].name, l_strName, strnlen(l_strName, 1024));
@@ -569,9 +569,9 @@ static void Terminate(struct PaUtilHostApiRepresentation *hostApi)
 
 
 static PaError IsFormatSupported(struct PaUtilHostApiRepresentation *hostApi,
-                                  const PaStreamParameters *inputParameters,
-                                  const PaStreamParameters *outputParameters,
-                                  double sampleRate)
+                                 const PaStreamParameters *inputParameters,
+                                 const PaStreamParameters *outputParameters,
+                                 double sampleRate)
 {
     int inputChannelCount, outputChannelCount;
     PaSampleFormat inputSampleFormat, outputSampleFormat;
@@ -728,8 +728,9 @@ static PaError PulseaudioBlockingInitRingBuffer(PaPulseaudioStream *stream, PaUt
     long l_lNumBytes = 4096 * size;
     char *l_ptrBuffer = (char *) malloc( l_lNumBytes );
 
-    if( l_ptrBuffer == NULL ) {
-       return paInsufficientMemory;
+    if( l_ptrBuffer == NULL )
+    {
+        return paInsufficientMemory;
     }
 
     memset( l_ptrBuffer, 0x00, l_lNumBytes );
@@ -739,14 +740,14 @@ static PaError PulseaudioBlockingInitRingBuffer(PaPulseaudioStream *stream, PaUt
 /* see pa_hostapi.h for a list of validity guarantees made about OpenStream parameters */
 
 static PaError OpenStream(struct PaUtilHostApiRepresentation *hostApi,
-                           PaStream** s,
-                           const PaStreamParameters *inputParameters,
-                           const PaStreamParameters *outputParameters,
-                           double sampleRate,
-                           unsigned long framesPerBuffer,
-                           PaStreamFlags streamFlags,
-                           PaStreamCallback *streamCallback,
-                           void *userData)
+                          PaStream** s,
+                          const PaStreamParameters *inputParameters,
+                          const PaStreamParameters *outputParameters,
+                          double sampleRate,
+                          unsigned long framesPerBuffer,
+                          PaStreamFlags streamFlags,
+                          PaStreamCallback *streamCallback,
+                          void *userData)
 {
     PaError result = paNoError;
     PaPulseaudioHostApiRepresentation *l_ptrPulseaudioHostApi = (PaPulseaudioHostApiRepresentation*)hostApi;
@@ -843,10 +844,10 @@ static PaError OpenStream(struct PaUtilHostApiRepresentation *hostApi,
 
         stream->device = inputParameters->device;
 
-       if(!streamCallback)
-       {
+        if(!streamCallback)
+        {
             PulseaudioBlockingInitRingBuffer(stream, &stream->inputRing, stream->inputFrameSize);
-       }
+        }
 
     }
 
@@ -919,8 +920,8 @@ static PaError OpenStream(struct PaUtilHostApiRepresentation *hostApi,
             long l_lnumBytes = 0;
             if( (l_lnumBytes = PulseaudioBlockingInitRingBuffer(stream, &stream->outputRing, stream->outputFrameSize)) != 0)
             {
-              PA_DEBUG(("Portaudio %s: Can't alloc output RingBuffer (Error: %ld)!\n", __FUNCTION__, l_lnumBytes));
-              goto error;
+                PA_DEBUG(("Portaudio %s: Can't alloc output RingBuffer (Error: %ld)!\n", __FUNCTION__, l_lnumBytes));
+                goto error;
             }
 
         }
@@ -942,12 +943,12 @@ static PaError OpenStream(struct PaUtilHostApiRepresentation *hostApi,
     if(streamCallback)
     {
         PaUtil_InitializeStreamRepresentation(&stream->streamRepresentation,
-                                               &l_ptrPulseaudioHostApi->callbackStreamInterface, streamCallback, userData);
+                                              &l_ptrPulseaudioHostApi->callbackStreamInterface, streamCallback, userData);
     }
     else
     {
         PaUtil_InitializeStreamRepresentation(&stream->streamRepresentation,
-                                               &l_ptrPulseaudioHostApi->blockingStreamInterface, streamCallback, userData);
+                                              &l_ptrPulseaudioHostApi->blockingStreamInterface, streamCallback, userData);
     }
 
     PaUtil_InitializeCpuLoadMeasurer(&stream->cpuLoadMeasurer, sampleRate);
@@ -957,7 +958,7 @@ static PaError OpenStream(struct PaUtilHostApiRepresentation *hostApi,
         can also support bounded and unknown host buffer sizes by passing
         paUtilBoundedHostBufferSize or paUtilUnknownHostBufferSize instead of
         paUtilFixedHostBufferSize below. */
- 
+
     result =  PaUtil_InitializeBufferProcessor(&stream->bufferProcessor,
               inputChannelCount, inputSampleFormat, hostInputSampleFormat,
               outputChannelCount, outputSampleFormat, hostOutputSampleFormat,
@@ -965,11 +966,11 @@ static PaError OpenStream(struct PaUtilHostApiRepresentation *hostApi,
               framesPerHostBuffer, paUtilUnknownHostBufferSize,
               streamCallback, userData);
 
-     if(result != paNoError)
+    if(result != paNoError)
     {
         goto error;
     }
- 
+
     stream->streamRepresentation.streamInfo.inputLatency =
         (PaTime)PaUtil_GetBufferProcessorInputLatencyFrames(&stream->bufferProcessor) / sampleRate; /* inputLatency is specified in _seconds_ */
     stream->streamRepresentation.streamInfo.outputLatency =
