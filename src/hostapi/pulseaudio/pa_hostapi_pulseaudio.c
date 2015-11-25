@@ -334,7 +334,9 @@ error:
 void PulseaudioStreamStateCb(pa_stream *s, void *userdata)
 {
     const pa_buffer_attr *a;
+    /* If you need debug pring enable these
     char cmt[PA_CHANNEL_MAP_SNPRINT_MAX], sst[PA_SAMPLE_SPEC_SNPRINT_MAX];
+    */
 
     assert(s);
 
@@ -350,17 +352,15 @@ void PulseaudioStreamStateCb(pa_stream *s, void *userdata)
     switch (pa_stream_get_state(s))
     {
     case PA_STREAM_TERMINATED:
-        /* printf("TERMINATED!\n"); */
         break;
 
     case PA_STREAM_CREATING:
-        /* printf("CREATING!\n"); */
         break;
 
     case PA_STREAM_READY:
-        /* printf("READY!\n"); */
+        /* Mainly here is you need debug printing
 
-        /*fprintf(stderr, "PulseaudioStreamStateCb: Stream successfully created.\n");
+          fprintf(stderr, "PulseaudioStreamStateCb: Stream successfully created.\n");
 
         if (!(a = pa_stream_get_buffer_attr(s)))
             fprintf(stderr, "pa_stream_get_buffer_attr() failed: %s\n", pa_strerror(pa_context_errno(pa_stream_get_context(s))));
