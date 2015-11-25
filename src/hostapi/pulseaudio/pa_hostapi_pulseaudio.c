@@ -94,15 +94,21 @@ PaPulseaudioHostApiRepresentation *PulseaudioNew(void)
 
     ptr = (PaPulseaudioHostApiRepresentation*)PaUtil_AllocateMemory(sizeof(PaPulseaudioHostApiRepresentation));
 
+    /* prt is NULL if runs out of memory or pointer to allocated memory */
     if (!ptr)
     {
-        return NULL;
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0, "PulseAudio can't alloc memory");
+	return NULL;
     }
+
+    /* Make sure we have NULL all struct first */
+    memset(ptr, 0x00, sizeof(PaPulseaudioHostApiRepresentation));
 
     ptr->mainloop = pa_threaded_mainloop_new();
 
     if (!ptr->mainloop)
     {
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0, "PulseAudio can't alloc mainloop");
         goto fail;
     }
 
@@ -114,6 +120,7 @@ PaPulseaudioHostApiRepresentation *PulseaudioNew(void)
 
     if (!ptr->context)
     {
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0, "PulseAudio can't alloc context");
         goto fail;
     }
 
@@ -122,6 +129,7 @@ PaPulseaudioHostApiRepresentation *PulseaudioNew(void)
 
     if (pa_threaded_mainloop_start(ptr->mainloop) < 0)
     {
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0, "PulseAudio can't start mainloop");
         goto fail;
     }
 
