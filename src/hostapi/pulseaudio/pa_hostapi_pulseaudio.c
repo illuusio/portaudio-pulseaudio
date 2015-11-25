@@ -139,7 +139,6 @@ PaPulseaudioHostApiRepresentation *PulseaudioNew(void)
 
 fail:
     PulseaudioFree(ptr);
-    free(ptr);
     return NULL;
 }
 
@@ -161,6 +160,7 @@ void PulseaudioFree(PaPulseaudioHostApiRepresentation *ptr)
         pa_threaded_mainloop_free(ptr->mainloop);
     }
 
+    PaUtil_FreeMemory(ptr);
 }
 
 
@@ -543,7 +543,7 @@ error:
             PaUtil_DestroyAllocationGroup(l_ptrPulseaudioHostApi->allocations);
         }
 
-        PaUtil_FreeMemory(l_ptrPulseaudioHostApi);
+        PulseaudioFree(l_ptrPulseaudioHostApi);
     }
 
     return result;
@@ -563,8 +563,6 @@ static void Terminate(struct PaUtilHostApiRepresentation *hostApi)
     pa_context_disconnect(l_ptrPulseaudioHostApi->context);
 
     PulseaudioFree(l_ptrPulseaudioHostApi);
-
-    PaUtil_FreeMemory(l_ptrPulseaudioHostApi);
 }
 
 
@@ -991,6 +989,7 @@ error:
     if(stream)
     {
         PaUtil_FreeMemory(stream);
+        PulseaudioFree(l_ptrPulseaudioHostApi);
     }
 
     return paNotInitialized;
