@@ -62,12 +62,6 @@
 #include <string.h>
 #include <pulse/pulseaudio.h>
 
-
-/* prototypes for functions declared in this file */
-
-#define PA_PULSEAUDIO_SET_LAST_HOST_ERROR(errorCode, errorText) \
-    PaUtil_SetLastHostErrorInfo(paInDevelopment, errorCode, errorText)
-
 /* This is used to identify process name for Pulseaudio. */
 extern char *__progname;
 
