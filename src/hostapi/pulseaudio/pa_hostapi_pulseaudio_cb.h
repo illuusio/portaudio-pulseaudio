@@ -12,7 +12,7 @@
 #include "pa_ringbuffer.h"
 
 
-/* Pulseaudio headers */
+/* PulseAudio headers */
 #include <stdio.h>
 #include <string.h>
 #include <pulse/pulseaudio.h>
@@ -26,13 +26,13 @@ extern "C"
 #endif /* __cplusplus */
 
 
-PaError PulseaudioCloseStreamCb(PaStream* stream);
-PaError PulseaudioStartStreamCb(PaStream *stream);
-PaError PulseaudioStopStreamCb(PaStream *stream);
-PaError PulseaudioAbortStreamCb(PaStream *stream);
+PaError PulseAudioCloseStreamCb(PaStream* stream);
+PaError PulseAudioStartStreamCb(PaStream *stream);
+PaError PulseAudioStopStreamCb(PaStream *stream);
+PaError PulseAudioAbortStreamCb(PaStream *stream);
 
-void PulseaudioStreamReadCb(pa_stream *s, size_t length, void *userdata);
-void PulseaudioStreamWriteCb(pa_stream *s, size_t length, void *userdata);
+void PulseAudioStreamReadCb(pa_stream *s, size_t length, void *userdata);
+void PulseAudioStreamWriteCb(pa_stream *s, size_t length, void *userdata);
 
 #ifdef __cplusplus
 }

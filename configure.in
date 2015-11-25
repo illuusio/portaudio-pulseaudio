@@ -29,7 +29,7 @@ AC_ARG_WITH(jack,
             [with_jack=$withval])
 
 AC_ARG_WITH(pulseaudio,
-            AS_HELP_STRING([--with-pulseaudio], [Enable support for Pulseaudio @<:@autodetect@:>@]),
+            AS_HELP_STRING([--with-pulseaudio], [Enable support for PulseAudio @<:@autodetect@:>@]),
             [with_pulseaudio=$withval])
 
 AC_ARG_WITH(oss,
@@ -520,7 +520,7 @@ case "$target_os" in
 	AC_MSG_RESULT([
   OSS ......................... $have_oss
   JACK ........................ $have_jack
-  Pulseaudio .................. $have_pulse
+  PulseAudio .................. $have_pulse
 ])
         ;;
 esac

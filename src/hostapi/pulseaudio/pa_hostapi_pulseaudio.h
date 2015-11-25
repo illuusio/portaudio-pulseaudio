@@ -12,7 +12,7 @@
 #include "pa_ringbuffer.h"
 #include "pa_debugprint.h"
 
-/* Pulseaudio headers */
+/* PulseAudio headers */
 #include <stdio.h>
 #include <string.h>
 #include <pulse/pulseaudio.h>
@@ -53,23 +53,23 @@ typedef struct
     PaDeviceInfo deviceInfoArray[1024];
     char *pulseaudioDeviceNames[1024];
 
-    /* Pulseaudio stuff goes here */
+    /* PulseAudio stuff goes here */
     pa_threaded_mainloop *mainloop;
     pa_context *context;
     int deviceCount;
     pa_context_state_t state;
     pa_time_event *timeEvent;
 }
-PaPulseaudioHostApiRepresentation;
+PaPulseAudioHostApiRepresentation;
 
-/* PaPulseaudioStream - a stream data structure specifically for this implementation */
+/* PaPulseAudioStream - a stream data structure specifically for this implementation */
 
-typedef struct PaPulseaudioStream
+typedef struct PaPulseAudioStream
 {
     PaUtilStreamRepresentation streamRepresentation;
     PaUtilCpuLoadMeasurer cpuLoadMeasurer;
     PaUtilBufferProcessor bufferProcessor;
-    PaPulseaudioHostApiRepresentation *hostapi;
+    PaPulseAudioHostApiRepresentation *hostapi;
 
     PaUnixThread thread;
     unsigned long framesPerHostCallback;
@@ -108,9 +108,9 @@ typedef struct PaPulseaudioStream
     volatile sig_atomic_t isStopped;        /* Is stream in active state? (Between StartStream and StopStream || !paContinue) */
 
 }
-PaPulseaudioStream;
+PaPulseAudioStream;
 
-PaError PaPulseaudio_Initialize(PaUtilHostApiRepresentation **hostApi, PaHostApiIndex index);
+PaError PaPulseAudio_Initialize(PaUtilHostApiRepresentation **hostApi, PaHostApiIndex index);
 
 static void Terminate(struct PaUtilHostApiRepresentation *hostApi);
 
@@ -137,20 +137,20 @@ static PaError IsStreamActive(PaStream *stream);
 static PaTime GetStreamTime(PaStream *stream);
 static double GetStreamCpuLoad(PaStream* stream);
 
-PaPulseaudioHostApiRepresentation *PulseaudioNew(void);
-void PulseaudioFree(PaPulseaudioHostApiRepresentation *ptr);
+PaPulseAudioHostApiRepresentation *PulseAudioNew(void);
+void PulseAudioFree(PaPulseAudioHostApiRepresentation *ptr);
 
-int PulseaudioCheckConnection(PaPulseaudioHostApiRepresentation *ptr);
+int PulseAudioCheckConnection(PaPulseAudioHostApiRepresentation *ptr);
 
-static void PulseaudioCheckContextStateCb(pa_context * c, void *userdata);
-void PulseaudioSinkListCb(pa_context *c, const pa_sink_info *l, int eol, void *userdata);
-void PulseaudioSourceListCb(pa_context *c, const pa_source_info *l, int eol, void *userdata);
+static void PulseAudioCheckContextStateCb(pa_context * c, void *userdata);
+void PulseAudioSinkListCb(pa_context *c, const pa_sink_info *l, int eol, void *userdata);
+void PulseAudioSourceListCb(pa_context *c, const pa_source_info *l, int eol, void *userdata);
 
-void PulseaudioStreamStateCb(pa_stream *s, void *userdata);
-void PulseaudioStreamStartedCb(pa_stream *s, void *userdata);
-void PulseaudioStreamUnderflowCb(pa_stream *s, void *userdata);
+void PulseAudioStreamStateCb(pa_stream *s, void *userdata);
+void PulseAudioStreamStartedCb(pa_stream *s, void *userdata);
+void PulseAudioStreamUnderflowCb(pa_stream *s, void *userdata);
 
-PaError PulseaudioConvertPortaudioFormatToPulseaudio(PaSampleFormat portaudiosf,
+PaError PulseAudioConvertPortaudioFormatToPulseAudio(PaSampleFormat portaudiosf,
         pa_sample_spec *pulseaudiosf);
 
 #ifdef __cplusplus

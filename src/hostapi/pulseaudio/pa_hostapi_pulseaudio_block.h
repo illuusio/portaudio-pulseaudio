@@ -11,7 +11,7 @@
 #include "pa_unix_util.h"
 #include "pa_ringbuffer.h"
 
-/* Pulseaudio headers */
+/* PulseAudio headers */
 #include <stdio.h>
 #include <string.h>
 #include <pulse/pulseaudio.h>
@@ -23,14 +23,14 @@ extern "C"
 {
 #endif /* __cplusplus */
 
-PaError PulseaudioCloseStreamBlock(PaStream* stream);
-PaError PulseaudioStartStreamBlock(PaStream *stream);
-PaError PulseaudioStopStreamBlock(PaStream *stream);
-PaError PulseaudioAbortStreamBlock(PaStream *stream);
-PaError PulseaudioReadStreamBlock(PaStream* stream, void *buffer, unsigned long frames);
-PaError PulseaudioWriteStreamBlock(PaStream* stream, const void *buffer, unsigned long frames);
-signed long PulseaudioGetStreamReadAvailableBlock(PaStream* stream);
-signed long PulseaudioGetStreamWriteAvailableBlock(PaStream* stream);
+PaError PulseAudioCloseStreamBlock(PaStream* stream);
+PaError PulseAudioStartStreamBlock(PaStream *stream);
+PaError PulseAudioStopStreamBlock(PaStream *stream);
+PaError PulseAudioAbortStreamBlock(PaStream *stream);
+PaError PulseAudioReadStreamBlock(PaStream* stream, void *buffer, unsigned long frames);
+PaError PulseAudioWriteStreamBlock(PaStream* stream, const void *buffer, unsigned long frames);
+signed long PulseAudioGetStreamReadAvailableBlock(PaStream* stream);
+signed long PulseAudioGetStreamWriteAvailableBlock(PaStream* stream);
 
 #ifdef __cplusplus
 }
