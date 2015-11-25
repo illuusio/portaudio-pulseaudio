@@ -30,8 +30,15 @@ extern "C"
 #define PA_PULSEAUDIO_SET_LAST_HOST_ERROR(errorCode, errorText) \
     PaUtil_SetLastHostErrorInfo(paInDevelopment, errorCode, errorText)
 
-
+/* Just chosen by hand from mistake and success method. Nothing really groudbreaking
+   If there is better number with better explantion then I'll be glad to change this
+   @todo change this to something more sophisticated */
 #define PULSEAUDIO_TIME_EVENT_USEC 50000
+
+/* Assuming of 2 seconds of 44100 Hz sample rate with FLOAT (4 bytes) and stereo channels (2 channels).
+   You should have pretty good size buffer with this. If output/intput doesn't happens in 2 second we
+   have more trouble than this buffer.
+   @todo change this to something more sophisticated */
 #define PULSEAUDIO_BUFFER_SIZE (88100 * 4 * 2)
 
 typedef struct
