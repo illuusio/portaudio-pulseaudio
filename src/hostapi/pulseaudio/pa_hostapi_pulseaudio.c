@@ -70,8 +70,20 @@ int PulseaudioCheckConnection(PaPulseaudioHostApiRepresentation *ptr)
 {
     pa_context_state_t state;
 
+    assert(ptr);
+
+    /* Sanity check if pre if NULL don't go anywhere or
+       it will SIGSEGV
+     */
+    if(!ptr)
+    {
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0, "Host API is NULL! Can't do anything about it");
+        return -1;
+    }
+
     if (!ptr->context || !ptr->mainloop)
     {
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0, "PulseAudio context or mainloop are NULL");
         return -1;
     }
 
@@ -79,6 +91,7 @@ int PulseaudioCheckConnection(PaPulseaudioHostApiRepresentation *ptr)
 
     if (!PA_CONTEXT_IS_GOOD(state))
     {
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0, "PulseAudio has general error");
         return -1;
     }
 
@@ -144,6 +157,17 @@ fail:
 
 void PulseaudioFree(PaPulseaudioHostApiRepresentation *ptr)
 {
+    assert(ptr);
+
+    /* Sanity check if pre if NULL don't go anywhere or
+       it will SIGSEGV
+     */
+    if(!ptr)
+    {
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0, "Host API is NULL! Can't do anything about it");
+        return;
+    }
+
     if (ptr->mainloop)
     {
         pa_threaded_mainloop_stop(ptr->mainloop);
@@ -169,6 +193,14 @@ static void PulseaudioCheckContextStateCb(pa_context * c, void *userdata)
     PaPulseaudioHostApiRepresentation *ptr = userdata;
     assert(c);
 
+    /* If this is null we have big problems and we probably are out of memory */
+    if(!c)
+    {
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0, "PulseaudioCheckContextStateCb: Out of memory");
+        pa_threaded_mainloop_signal(ptr->mainloop, 0);
+        return;
+    }
+
     ptr->state = pa_context_get_state(c);
     pa_threaded_mainloop_signal(ptr->mainloop, 0);
 }
@@ -179,6 +211,15 @@ void PulseaudioSinkListCb(pa_context *c, const pa_sink_info *l, int eol, void *u
     PaPulseaudioHostApiRepresentation *l_ptrHostApi = (PaPulseaudioHostApiRepresentation *)userdata;
     PaError result = paNoError;
     char *l_strName = NULL;
+
+    assert(c);
+
+    /* If this is null we have big problems and we probably are out of memory */
+    if(!c)
+    {
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0, "PulseaudioSinkListCb: Out of memory");
+        goto error;
+    }
 
     /* If eol is set to a positive number, you're at the end of the list */
     if (eol > 0)
@@ -231,6 +272,15 @@ void PulseaudioSourceListCb(pa_context *c, const pa_source_info *l, int eol, voi
     PaPulseaudioHostApiRepresentation *l_ptrHostApi = (PaPulseaudioHostApiRepresentation *)userdata;
     PaError result = paNoError;
     char *l_strName = NULL;
+
+    assert(c);
+
+    /* If this is null we have big problems and we probably are out of memory */
+    if(!c)
+    {
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0, "PulseaudioSourceListCb: Out of memory");
+        goto error;
+    }
 
     /* If eol is set to a positive number, you're at the end of the list */
     if (eol > 0)
@@ -285,7 +335,15 @@ void PulseaudioStreamStateCb(pa_stream *s, void *userdata)
 {
     const pa_buffer_attr *a;
     char cmt[PA_CHANNEL_MAP_SNPRINT_MAX], sst[PA_SAMPLE_SPEC_SNPRINT_MAX];
+
     assert(s);
+
+    /* If this is null we have big problems and we probably are out of memory */
+    if(!s)
+    {
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0, "PulseaudioStreamStateCb: Out of memory");
+        return;
+    }
 
     /* printf("Portaudio [Pulseaudio (PulseaudioStreamStateCb)]: Stream STATE CHANGED: "); */
 
@@ -331,6 +389,15 @@ void PulseaudioStreamStateCb(pa_stream *s, void *userdata)
 void PulseaudioStreamUnderflowCb(pa_stream *s, void *userdata)
 {
     PaPulseaudioStream *stream = (PaPulseaudioStream*)userdata;
+
+    assert(s);
+
+    /* If this is null we have big problems and we probably are out of memory */
+    if(!s)
+    {
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0, "PulseaudioStreamUnderflowCb: Out of memory");
+        return;
+    }
 
     stream->underflows++;
 
