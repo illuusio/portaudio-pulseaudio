@@ -73,6 +73,9 @@
 #define PULSEAUDIO_TIME_EVENT_USEC 50000
 #define PULSEAUDIO_BUFFER_SIZE (88100 * 4 * 2)
 
+/* This is used to identify process name for Pulseaudio. */
+extern char *__progname;
+
 /* Pulseaudio specific functions */
 int PulseaudioCheckConnection(PaPulseaudioHostApiRepresentation *ptr)
 {
@@ -115,7 +118,7 @@ PaPulseaudioHostApiRepresentation *PulseaudioNew(void)
     }
 
     memset(buf, 0x00, PATH_MAX + 20);
-    snprintf(buf, sizeof(buf), "Portaudio Pulseaudio HostApi");
+    snprintf(buf, sizeof(buf), "%s", __progname);
 
     ptr->context =
         pa_context_new(pa_threaded_mainloop_get_api(ptr->mainloop), buf);
