@@ -21,21 +21,40 @@
 #ifdef __cplusplus
 extern "C"
 {
-#endif /* __cplusplus */
+#endif                          /* __cplusplus */
 
-PaError PulseAudioCloseStreamBlock(PaStream* stream);
-PaError PulseAudioStartStreamBlock(PaStream *stream);
-PaError PulseAudioStopStreamBlock(PaStream *stream);
-PaError PulseAudioAbortStreamBlock(PaStream *stream);
-PaError PulseAudioReadStreamBlock(PaStream* stream, void *buffer, unsigned long frames);
-PaError PulseAudioWriteStreamBlock(PaStream* stream, const void *buffer, unsigned long frames);
-signed long PulseAudioGetStreamReadAvailableBlock(PaStream* stream);
-signed long PulseAudioGetStreamWriteAvailableBlock(PaStream* stream);
+    PaError PulseAudioCloseStreamBlock(
+    PaStream * stream
+    );
+    PaError PulseAudioStartStreamBlock(
+    PaStream * stream
+    );
+    PaError PulseAudioStopStreamBlock(
+    PaStream * stream
+    );
+    PaError PulseAudioAbortStreamBlock(
+    PaStream * stream
+    );
+    PaError PulseAudioReadStreamBlock(
+    PaStream * stream,
+    void *buffer,
+    unsigned long frames
+    );
+    PaError PulseAudioWriteStreamBlock(
+    PaStream * stream,
+    const void *buffer,
+    unsigned long frames
+    );
+    signed long PulseAudioGetStreamReadAvailableBlock(
+    PaStream * stream
+    );
+    signed long PulseAudioGetStreamWriteAvailableBlock(
+    PaStream * stream
+    );
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif                          /* __cplusplus */
 
 
 #endif
-

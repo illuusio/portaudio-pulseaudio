@@ -23,21 +23,36 @@
 #ifdef __cplusplus
 extern "C"
 {
-#endif /* __cplusplus */
+#endif                          /* __cplusplus */
 
 
-PaError PulseAudioCloseStreamCb(PaStream* stream);
-PaError PulseAudioStartStreamCb(PaStream *stream);
-PaError PulseAudioStopStreamCb(PaStream *stream);
-PaError PulseAudioAbortStreamCb(PaStream *stream);
+    PaError PulseAudioCloseStreamCb(
+    PaStream * stream
+    );
+    PaError PulseAudioStartStreamCb(
+    PaStream * stream
+    );
+    PaError PulseAudioStopStreamCb(
+    PaStream * stream
+    );
+    PaError PulseAudioAbortStreamCb(
+    PaStream * stream
+    );
 
-void PulseAudioStreamReadCb(pa_stream *s, size_t length, void *userdata);
-void PulseAudioStreamWriteCb(pa_stream *s, size_t length, void *userdata);
+    void PulseAudioStreamReadCb(
+    pa_stream * s,
+    size_t length,
+    void *userdata
+    );
+    void PulseAudioStreamWriteCb(
+    pa_stream * s,
+    size_t length,
+    void *userdata
+    );
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif                          /* __cplusplus */
 
 
 #endif
-

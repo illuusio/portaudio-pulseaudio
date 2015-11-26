@@ -1,3 +1,4 @@
+
 /*
  * $Id: pa_hostapi_pulseaudio.c 1668 2011-05-02 17:07:11Z rossb $
  * PulseAudio host to play natively in Linux based systems without
@@ -56,15 +57,18 @@
     for blocking streams.
 */
 
-PaError PulseAudioReadStreamBlock(PaStream* s,
-                                  void *buffer,
-                                  unsigned long frames)
+PaError PulseAudioReadStreamBlock(
+    PaStream * s,
+    void *buffer,
+    unsigned long frames
+)
 {
-    PaPulseAudioStream *l_ptrStream = (PaPulseAudioStream*)s;
-    PaPulseAudioHostApiRepresentation *l_ptrPulseAudioHostApi = l_ptrStream->hostapi;
+    PaPulseAudioStream *l_ptrStream = (PaPulseAudioStream *) s;
+    PaPulseAudioHostApiRepresentation *l_ptrPulseAudioHostApi =
+        l_ptrStream->hostapi;
     PaError l_iRet = 0;
     size_t l_lReadable = 0;
-    uint8_t *l_ptrData = (uint8_t*)buffer;
+    uint8_t *l_ptrData = (uint8_t *) buffer;
     long l_lLength = (frames * l_ptrStream->inputFrameSize);
 
     pa_threaded_mainloop_lock(l_ptrStream->mainloop);
@@ -73,15 +77,21 @@ PaError PulseAudioReadStreamBlock(PaStream* s,
 
     while (l_lLength > 0)
     {
-        if( PaUtil_GetRingBufferReadAvailable(&l_ptrStream->inputRing) > l_lLength)
+        if (PaUtil_GetRingBufferReadAvailable(&l_ptrStream->inputRing) >
+            l_lLength)
         {
-            l_iRet = PaUtil_ReadRingBuffer(&l_ptrStream->inputRing, l_ptrData, l_lLength);
+            l_iRet =
+                PaUtil_ReadRingBuffer(&l_ptrStream->inputRing, l_ptrData,
+                                      l_lLength);
             l_lLength = 0;
         }
         else
         {
-            l_lReadable = PaUtil_GetRingBufferReadAvailable(&l_ptrStream->inputRing);
-            l_iRet = PaUtil_ReadRingBuffer(&l_ptrStream->inputRing, l_ptrData, l_lReadable);
+            l_lReadable =
+                PaUtil_GetRingBufferReadAvailable(&l_ptrStream->inputRing);
+            l_iRet =
+                PaUtil_ReadRingBuffer(&l_ptrStream->inputRing, l_ptrData,
+                                      l_lReadable);
             l_ptrData += l_lReadable;
             l_lLength -= l_lReadable;
         }
@@ -94,35 +104,47 @@ PaError PulseAudioReadStreamBlock(PaStream* s,
 }
 
 
-PaError PulseAudioWriteStreamBlock(PaStream* s,
-                                   const void *buffer,
-                                   unsigned long frames)
+PaError PulseAudioWriteStreamBlock(
+    PaStream * s,
+    const void *buffer,
+    unsigned long frames
+)
 {
 
-    PaPulseAudioStream *l_ptrStream = (PaPulseAudioStream*)s;
-    PaPulseAudioHostApiRepresentation *l_ptrPulseAudioHostApi = l_ptrStream->hostapi;
+    PaPulseAudioStream *l_ptrStream = (PaPulseAudioStream *) s;
+    PaPulseAudioHostApiRepresentation *l_ptrPulseAudioHostApi =
+        l_ptrStream->hostapi;
     PaError l_iRet = 0;
     size_t l_lWritable = 0;
-    uint8_t *l_ptrData = (uint8_t*)buffer;
+    uint8_t *l_ptrData = (uint8_t *) buffer;
     long l_lLength = (frames * l_ptrStream->outputFrameSize);
 
     pa_threaded_mainloop_lock(l_ptrStream->mainloop);
 
     l_lLength -= PaUtil_GetRingBufferWriteAvailable(&l_ptrStream->outputRing);
     l_ptrData += PaUtil_GetRingBufferWriteAvailable(&l_ptrStream->outputRing);
-    l_iRet = PaUtil_WriteRingBuffer(&l_ptrStream->outputRing, buffer, PaUtil_GetRingBufferWriteAvailable(&l_ptrStream->outputRing));
+    l_iRet =
+        PaUtil_WriteRingBuffer(&l_ptrStream->outputRing, buffer,
+                               PaUtil_GetRingBufferWriteAvailable(&l_ptrStream->
+                                                                  outputRing));
 
     while (l_lLength > 0)
     {
-        if( PaUtil_GetRingBufferWriteAvailable(&l_ptrStream->outputRing) > l_lLength)
+        if (PaUtil_GetRingBufferWriteAvailable(&l_ptrStream->outputRing) >
+            l_lLength)
         {
-            l_iRet = PaUtil_WriteRingBuffer(&l_ptrStream->outputRing, l_ptrData, l_lLength);
+            l_iRet =
+                PaUtil_WriteRingBuffer(&l_ptrStream->outputRing, l_ptrData,
+                                       l_lLength);
             l_lLength = 0;
         }
         else
         {
-            l_lWritable = PaUtil_GetRingBufferWriteAvailable(&l_ptrStream->outputRing);
-            l_iRet = PaUtil_WriteRingBuffer(&l_ptrStream->outputRing, l_ptrData, l_lWritable);
+            l_lWritable =
+                PaUtil_GetRingBufferWriteAvailable(&l_ptrStream->outputRing);
+            l_iRet =
+                PaUtil_WriteRingBuffer(&l_ptrStream->outputRing, l_ptrData,
+                                       l_lWritable);
             l_ptrData += l_lWritable;
             l_lLength -= l_lWritable;
         }
@@ -135,31 +157,35 @@ PaError PulseAudioWriteStreamBlock(PaStream* s,
 }
 
 
-signed long PulseAudioGetStreamReadAvailableBlock(PaStream* s)
+signed long PulseAudioGetStreamReadAvailableBlock(
+    PaStream * s
+)
 {
-    PaPulseAudioStream *l_ptrStream = (PaPulseAudioStream*)s;
+    PaPulseAudioStream *l_ptrStream = (PaPulseAudioStream *) s;
 
-    if(l_ptrStream->inStream ==  NULL)
+    if (l_ptrStream->inStream == NULL)
     {
         return 0;
     }
 
-    return (PaUtil_GetRingBufferReadAvailable( &l_ptrStream->inputRing ) / l_ptrStream->inputFrameSize);
+    return (PaUtil_GetRingBufferReadAvailable(&l_ptrStream->inputRing) /
+            l_ptrStream->inputFrameSize);
 }
 
 
-signed long PulseAudioGetStreamWriteAvailableBlock(PaStream* s)
+signed long PulseAudioGetStreamWriteAvailableBlock(
+    PaStream * s
+)
 {
-    PaPulseAudioStream *l_ptrStream = (PaPulseAudioStream*)s;
-    PaPulseAudioHostApiRepresentation *l_ptrPulseAudioHostApi = l_ptrStream->hostapi;
+    PaPulseAudioStream *l_ptrStream = (PaPulseAudioStream *) s;
+    PaPulseAudioHostApiRepresentation *l_ptrPulseAudioHostApi =
+        l_ptrStream->hostapi;
 
-    if(l_ptrStream->outStream ==  NULL)
+    if (l_ptrStream->outStream == NULL)
     {
         return 0;
     }
 
-    return (PaUtil_GetRingBufferReadAvailable(&l_ptrStream->outputRing) / l_ptrStream->outputFrameSize);
+    return (PaUtil_GetRingBufferReadAvailable(&l_ptrStream->outputRing) /
+            l_ptrStream->outputFrameSize);
 }
-
-
-
