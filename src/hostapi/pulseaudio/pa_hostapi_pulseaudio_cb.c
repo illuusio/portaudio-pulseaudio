@@ -70,13 +70,6 @@
 #include <string.h>
 #include <pulse/pulseaudio.h>
 
-/* prototypes for functions declared in this file */
-
-#define PA_PULSEAUDIO_SET_LAST_HOST_ERROR(errorCode, errorText) \
-    PaUtil_SetLastHostErrorInfo(paInDevelopment, errorCode, errorText)
-
-
-
 void PulseAudioStreamReadCb(
     pa_stream * s,
     size_t length,
