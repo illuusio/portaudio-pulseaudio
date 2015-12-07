@@ -222,6 +222,66 @@ static void PulseAudioCheckContextStateCb(
     pa_threaded_mainloop_signal(ptr->mainloop, 0);
 }
 
+int _PulseAudioAddAudioDevice(
+    PaPulseAudioHostApiRepresentation *hostapi,
+    const char *interfaceName,
+    const char *realName,
+    int inputChannels,
+    int outputChannels,
+    double defaultLowInputLatency,
+    double defaultHighInputLatency,
+    double defaultLowOutputLatency,
+    double defaultHighOutputLatency,
+    const long defaultSampleRate
+)
+{
+    /* These should be at leat 1 */
+    int l_iRealNameLen = strnlen(realName, 1024) + 1;
+    int l_iDeviceNameLen = strnlen(interfaceName, 1024) + 1;
+    char *l_ptrName = NULL;
+    
+    hostapi->pulseaudioDeviceNames[hostapi->deviceCount] = (char *) PaUtil_GroupAllocateMemory(hostapi->allocations,
+                                                           l_iRealNameLen);
+    hostapi->deviceInfoArray[hostapi->deviceCount].name =  (char *) PaUtil_GroupAllocateMemory(hostapi->allocations,
+                                                           l_iDeviceNameLen);
+  
+    if( !hostapi->pulseaudioDeviceNames[hostapi->deviceCount] &&
+        !hostapi->deviceInfoArray[hostapi->deviceCount].name)
+    {
+       PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0,
+                                         "Can't alloc memory"); 
+       return paInsufficientMemory;
+    }
+    /*PA_UNLESS(hostapi->pulseaudioDeviceNames[hostapi->deviceCount] =
+              (char *) PaUtil_GroupAllocateMemory(hostapi->allocations,
+                                                  l_iRealNameLen),
+              paInsufficientMemory);*/
+
+    /* PA_UNLESS(hostapi->deviceInfoArray[hostapi->deviceCount].name =
+              (char *) PaUtil_GroupAllocateMemory(hostapi->allocations,
+                                                  l_iDeviceNameLen),
+              paInsufficientMemory); */
+
+    strncpy((char *)
+            hostapi->pulseaudioDeviceNames[hostapi->deviceCount],
+            realName, l_iRealNameLen);
+
+    strncpy((char *) hostapi->deviceInfoArray[hostapi->deviceCount].name,
+          interfaceName, l_iDeviceNameLen);
+
+    l_ptrName = (char *)hostapi->deviceInfoArray[hostapi->deviceCount].name + l_iDeviceNameLen;
+    l_ptrName = '\0';
+    hostapi->pulseaudioDeviceNames[hostapi->deviceCount][l_iRealNameLen] = '\0';
+
+    hostapi->deviceInfoArray[hostapi->deviceCount].maxInputChannels = inputChannels;
+    hostapi->deviceInfoArray[hostapi->deviceCount].maxOutputChannels = outputChannels;
+    hostapi->deviceInfoArray[hostapi->deviceCount].defaultLowInputLatency = defaultLowInputLatency;
+    hostapi->deviceInfoArray[hostapi->deviceCount].defaultLowOutputLatency = defaultLowOutputLatency;
+    hostapi->deviceInfoArray[hostapi->deviceCount].defaultHighInputLatency = defaultHighOutputLatency;
+    hostapi->deviceInfoArray[hostapi->deviceCount].defaultHighOutputLatency = defaultHighOutputLatency;
+    hostapi->deviceInfoArray[hostapi->deviceCount].defaultSampleRate = defaultSampleRate;
+    hostapi->deviceCount++;
+}
 
 void PulseAudioSinkListCb(
     pa_context * c,
@@ -262,55 +322,21 @@ void PulseAudioSinkListCb(
         l_strName = (char *) l->description;
     }
 
-    PA_UNLESS(l_ptrHostApi->pulseaudioDeviceNames[l_ptrHostApi->deviceCount] =
-              (char *) PaUtil_GroupAllocateMemory(l_ptrHostApi->allocations,
-                                                  strnlen(l->name, 1024) + 1),
-              paInsufficientMemory);
-
-    memset(l_ptrHostApi->pulseaudioDeviceNames[l_ptrHostApi->deviceCount], 0x00,
-           strnlen(l->name, 1024) + 1);
-    strncpy((char *)
-            l_ptrHostApi->pulseaudioDeviceNames[l_ptrHostApi->deviceCount],
-            l->name, strnlen(l->name, 1024));
-
-    PA_UNLESS(l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].name =
-              (char *) PaUtil_GroupAllocateMemory(l_ptrHostApi->allocations,
-                                                  strnlen(l_strName, 1024) + 1),
-              paInsufficientMemory);
-
-    memset((char *) l_ptrHostApi->
-           deviceInfoArray[l_ptrHostApi->deviceCount].name, 0x00,
-           strnlen(l_strName, 1024) + 1);
-    strncpy((char *) l_ptrHostApi->
-            deviceInfoArray[l_ptrHostApi->deviceCount].name, l_strName,
-            strnlen(l_strName, 1024));
-
-    // l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].name = l->name;
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].maxInputChannels =
-        0;
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].maxOutputChannels =
-        l->sample_spec.channels;
-
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->
-                                  deviceCount].defaultLowInputLatency = 0.;
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->
-                                  deviceCount].defaultLowOutputLatency =
-        l->latency;
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->
-                                  deviceCount].defaultHighInputLatency = 0.;
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->
-                                  deviceCount].defaultHighOutputLatency =
-        l->configured_latency;
-
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].defaultSampleRate =
-        l->sample_spec.rate;
-
-    l_ptrHostApi->deviceCount++;
+    _PulseAudioAddAudioDevice(
+        l_ptrHostApi,
+        l_strName,
+        l->name,
+        0,
+        l->sample_spec.channels,
+        0,
+        0,
+        (double) l->latency,
+        (double) l->configured_latency,
+        l->sample_spec.rate);
 
   error:
     pa_threaded_mainloop_signal(l_ptrHostApi->mainloop, 0);
 }
-
 
 void PulseAudioSourceListCb(
     pa_context * c,
@@ -351,55 +377,19 @@ void PulseAudioSourceListCb(
         l_strName = (char *) l->description;
     }
 
-    printf("%s Source name: %s (%s)\n", __FUNCTION__, l->name, l->description);
-
-    PA_UNLESS(l_ptrHostApi->pulseaudioDeviceNames[l_ptrHostApi->deviceCount] =
-              (char *) PaUtil_GroupAllocateMemory(l_ptrHostApi->allocations,
-                                                  strnlen(l->name, 1024) + 1),
-              paInsufficientMemory);
-
-    memset(l_ptrHostApi->pulseaudioDeviceNames[l_ptrHostApi->deviceCount], 0x00,
-           strnlen(l->name, 1024) + 1);
-    strncpy((char *)
-            l_ptrHostApi->pulseaudioDeviceNames[l_ptrHostApi->deviceCount],
-            l->name, strnlen(l->name, 1024));
-
-    PA_UNLESS(l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].name =
-              (char *) PaUtil_GroupAllocateMemory(l_ptrHostApi->allocations,
-                                                  strnlen(l_strName, 1024) + 1),
-              paInsufficientMemory);
-
-    memset((char *) l_ptrHostApi->
-           deviceInfoArray[l_ptrHostApi->deviceCount].name, 0x00,
-           strnlen(l_strName, 1024) + 1);
-    strncpy((char *) l_ptrHostApi->
-            deviceInfoArray[l_ptrHostApi->deviceCount].name, l_strName,
-            strnlen(l_strName, 1024));
-
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].maxInputChannels =
-        l->sample_spec.channels;
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].maxOutputChannels =
-        0;
-
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->
-                                  deviceCount].defaultLowInputLatency =
-        (double) l->latency;
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->
-                                  deviceCount].defaultLowOutputLatency = 0;
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->
-                                  deviceCount].defaultHighInputLatency =
-        (double) l->configured_latency;
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->
-                                  deviceCount].defaultHighOutputLatency = 0;
-
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].defaultSampleRate =
-        l->sample_spec.rate;
-
-    l_ptrHostApi->deviceCount++;
+    _PulseAudioAddAudioDevice(
+        l_ptrHostApi,
+        l_strName,
+        l->name,
+        l->sample_spec.channels,
+        0,
+        (double) l->latency,
+        (double) l->configured_latency,
+        0,
+        0,
+        l->sample_spec.rate);
 
   error:
-    PA_DEBUG(("Portaudio %s: End of list\n", __FUNCTION__));
-
     pa_threaded_mainloop_signal(l_ptrHostApi->mainloop, 0);
 }
 
