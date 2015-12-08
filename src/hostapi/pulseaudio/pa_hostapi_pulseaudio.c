@@ -267,9 +267,9 @@ int _PulseAudioAddAudioDevice(
             realName, l_iRealNameLen);
 
     strncpy((char *) hostapi->deviceInfoArray[hostapi->deviceCount].name,
-          interfaceName, l_iDeviceNameLen);
+          interfaceName, (l_iDeviceNameLen - 1));
 
-    l_ptrName = (char *)hostapi->deviceInfoArray[hostapi->deviceCount].name + l_iDeviceNameLen;
+    l_ptrName = (char *)hostapi->deviceInfoArray[hostapi->deviceCount].name + (l_iDeviceNameLen - 1);
     l_ptrName = '\0';
     hostapi->pulseaudioDeviceNames[hostapi->deviceCount][l_iRealNameLen] = '\0';
 
