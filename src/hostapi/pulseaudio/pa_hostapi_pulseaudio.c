@@ -224,8 +224,8 @@ static void PulseAudioCheckContextStateCb(
 
 int _PulseAudioAddAudioDevice(
     PaPulseAudioHostApiRepresentation *hostapi,
-    const char *interfaceName,
-    const char *realName,
+    const char *PulseAudioSinkSourceName,
+    const char *PulseAudioSinkSourceNameDesc,
     int inputChannels,
     int outputChannels,
     double defaultLowInputLatency,
@@ -236,8 +236,8 @@ int _PulseAudioAddAudioDevice(
 )
 {
     /* These should be at leat 1 */
-    int l_iRealNameLen = strnlen(realName, 1024) + 1;
-    int l_iDeviceNameLen = strnlen(interfaceName, 1024) + 1;
+    int l_iRealNameLen = strnlen(PulseAudioSinkSourceNameDesc, 1024) + 1;
+    int l_iDeviceNameLen = strnlen(PulseAudioSinkSourceName, 1024) + 1;
     char *l_ptrName = NULL;
     char *l_strLocalName = NULL;
     
@@ -255,10 +255,10 @@ int _PulseAudioAddAudioDevice(
     }
 
     strncpy(hostapi->pulseaudioDeviceNames[hostapi->deviceCount],
-            realName, l_iRealNameLen);
+            PulseAudioSinkSourceNameDesc, l_iRealNameLen);
 
     strncpy(l_strLocalName,
-          interfaceName, (l_iDeviceNameLen - 1));
+          PulseAudioSinkSourceName, (l_iDeviceNameLen - 1));
 
     hostapi->deviceInfoArray[hostapi->deviceCount].name = l_strLocalName;
 
