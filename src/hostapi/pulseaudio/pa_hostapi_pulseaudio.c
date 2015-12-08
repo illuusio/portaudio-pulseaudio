@@ -286,7 +286,7 @@ void PulseAudioSinkListCb(
     PaPulseAudioHostApiRepresentation *l_ptrHostApi =
         (PaPulseAudioHostApiRepresentation *) userdata;
     PaError result = paNoError;
-    char *l_strName = NULL;
+    const char *l_strName = NULL;
 
     assert(c);
 
@@ -308,11 +308,11 @@ void PulseAudioSinkListCb(
     l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].hostApi =
         l_ptrHostApi->hostApiIndex;
 
-    l_strName = (char *) l->name;
+    l_strName = l->name;
 
     if (l->description != NULL)
     {
-        l_strName = (char *) l->description;
+        l_strName = l->description;
     }
 
     _PulseAudioAddAudioDevice(
@@ -341,7 +341,7 @@ void PulseAudioSourceListCb(
     PaPulseAudioHostApiRepresentation *l_ptrHostApi =
         (PaPulseAudioHostApiRepresentation *) userdata;
     PaError result = paNoError;
-    char *l_strName = NULL;
+    const char *l_strName = NULL;
 
     assert(c);
 
@@ -363,11 +363,11 @@ void PulseAudioSourceListCb(
     l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].hostApi =
         l_ptrHostApi->hostApiIndex;
 
-    l_strName = (char *) l->name;
+    l_strName = l->name;
 
     if (l->description != NULL)
     {
-        l_strName = (char *) l->description;
+        l_strName = l->description;
     }
 
     _PulseAudioAddAudioDevice(
