@@ -253,15 +253,6 @@ int _PulseAudioAddAudioDevice(
                                          "Can't alloc memory"); 
        return paInsufficientMemory;
     }
-    /*PA_UNLESS(hostapi->pulseaudioDeviceNames[hostapi->deviceCount] =
-              (char *) PaUtil_GroupAllocateMemory(hostapi->allocations,
-                                                  l_iRealNameLen),
-              paInsufficientMemory);*/
-
-    /* PA_UNLESS(hostapi->deviceInfoArray[hostapi->deviceCount].name =
-              (char *) PaUtil_GroupAllocateMemory(hostapi->allocations,
-                                                  l_iDeviceNameLen),
-              paInsufficientMemory); */
 
     strncpy(hostapi->pulseaudioDeviceNames[hostapi->deviceCount],
             realName, l_iRealNameLen);
