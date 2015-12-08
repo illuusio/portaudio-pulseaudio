@@ -239,14 +239,15 @@ int _PulseAudioAddAudioDevice(
     int l_iRealNameLen = strnlen(realName, 1024) + 1;
     int l_iDeviceNameLen = strnlen(interfaceName, 1024) + 1;
     char *l_ptrName = NULL;
+    char *l_strLocalName = NULL;
     
-    hostapi->pulseaudioDeviceNames[hostapi->deviceCount] = (char *) PaUtil_GroupAllocateMemory(hostapi->allocations,
+    hostapi->pulseaudioDeviceNames[hostapi->deviceCount] = PaUtil_GroupAllocateMemory(hostapi->allocations,
                                                            l_iRealNameLen);
-    hostapi->deviceInfoArray[hostapi->deviceCount].name =  (char *) PaUtil_GroupAllocateMemory(hostapi->allocations,
+    l_strLocalName = PaUtil_GroupAllocateMemory(hostapi->allocations,
                                                            l_iDeviceNameLen);
   
     if( !hostapi->pulseaudioDeviceNames[hostapi->deviceCount] &&
-        !hostapi->deviceInfoArray[hostapi->deviceCount].name)
+        !l_strLocalName)
     {
        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0,
                                          "Can't alloc memory"); 
@@ -262,14 +263,15 @@ int _PulseAudioAddAudioDevice(
                                                   l_iDeviceNameLen),
               paInsufficientMemory); */
 
-    strncpy((char *)
-            hostapi->pulseaudioDeviceNames[hostapi->deviceCount],
+    strncpy(hostapi->pulseaudioDeviceNames[hostapi->deviceCount],
             realName, l_iRealNameLen);
 
-    strncpy((char *) hostapi->deviceInfoArray[hostapi->deviceCount].name,
+    strncpy(l_strLocalName,
           interfaceName, (l_iDeviceNameLen - 1));
 
-    l_ptrName = (char *)hostapi->deviceInfoArray[hostapi->deviceCount].name + (l_iDeviceNameLen - 1);
+    hostapi->deviceInfoArray[hostapi->deviceCount].name = l_strLocalName;
+
+    l_ptrName = l_strLocalName + (l_iDeviceNameLen - 1);
     l_ptrName = '\0';
     hostapi->pulseaudioDeviceNames[hostapi->deviceCount][l_iRealNameLen] = '\0';
 
