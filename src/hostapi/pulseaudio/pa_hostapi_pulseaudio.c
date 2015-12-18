@@ -491,6 +491,7 @@ PaError PaPulseAudio_Initialize(
     PaError result = paNoError;
     int i;
     int deviceCount;
+    int l_iRtn = 0;
     PaPulseAudioHostApiRepresentation *l_ptrPulseAudioHostApi = NULL;
     PaDeviceInfo *deviceInfoArray = NULL;
 
@@ -508,7 +509,6 @@ PaError PaPulseAudio_Initialize(
 
     if (!l_ptrPulseAudioHostApi->allocations)
     {
-        PulseAudioFree(l_ptrPulseAudioHostApi);
         result = paInsufficientMemory;
         goto error;
     }
@@ -523,7 +523,15 @@ PaError PaPulseAudio_Initialize(
     (*hostApi)->info.defaultOutputDevice = paNoDevice;
 
     /* Connect to server */
-    pa_context_connect(l_ptrPulseAudioHostApi->context, NULL, 0, NULL);
+    l_iRtn = pa_context_connect(l_ptrPulseAudioHostApi->context, NULL, 0, NULL);
+
+    if(l_iRtn < 0)
+    {
+        PA_PULSEAUDIO_SET_LAST_HOST_ERROR(0,
+                                          "PaPulseAudio_Initialize: Can't connect to server");
+        result = paNoError;
+        goto error;
+    }
 
     while (1)
     {
@@ -680,6 +688,7 @@ PaError PaPulseAudio_Initialize(
         }
 
         PulseAudioFree(l_ptrPulseAudioHostApi);
+        l_ptrPulseAudioHostApi = NULL;
     }
 
     return result;
