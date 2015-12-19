@@ -136,7 +136,7 @@ if test "x$with_oss" != "xno"; then
         AC_CHECK_LIB(ossaudio, _oss_ioctl, have_libossaudio=yes, have_libossaudio=no)
     fi
 fi
-if [[ "x$with_jack" = "xyes" ] || [ "x$with_pulseaudio" = "xyes" ]]; then
+if [[ "x$with_jack" != "xno" ] || [ "x$with_pulseaudio" != "xno" ]]; then
     PKG_PROG_PKG_CONFIG
 fi
 have_jack=no
