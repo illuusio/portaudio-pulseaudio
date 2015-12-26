@@ -564,6 +564,7 @@ PaError PaPulseAudio_Initialize(
         l_ptrPulseAudioHostApi->pulseaudioDeviceNames[i] = NULL;
     }
 
+    /* List PulseAudio sinks. If found callback: PulseAudioSinkListCb */
     l_ptrOperation =
         pa_context_get_sink_info_list(l_ptrPulseAudioHostApi->context,
                                       PulseAudioSinkListCb,
@@ -576,6 +577,7 @@ PaError PaPulseAudio_Initialize(
 
     pa_operation_unref(l_ptrOperation);
 
+    /* List PulseAudio sources. If found callback: PulseAudioSourceListCb */
     l_ptrOperation =
         pa_context_get_source_info_list(l_ptrPulseAudioHostApi->context,
                                         PulseAudioSourceListCb,
