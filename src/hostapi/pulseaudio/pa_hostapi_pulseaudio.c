@@ -533,41 +533,28 @@ PaError PaPulseAudio_Initialize(
         goto error;
     }
 
-    while (1)
-    {
-        pa_threaded_mainloop_lock(l_ptrPulseAudioHostApi->mainloop);
+    l_iRtn = 0;
 
-        switch (l_ptrPulseAudioHostApi->state)
+    /* We should wait that PulseAudio server let us in or fails us */
+    while (!l_iRtn)
+    {
+        pa_threaded_mainloop_wait(l_ptrPulseAudioHostApi->mainloop);
+
+        switch (pa_context_get_state(l_ptrPulseAudioHostApi->context))
         {
             case PA_CONTEXT_READY:
+                l_iRtn = 1;
                 break;
-
             case PA_CONTEXT_TERMINATED:
             case PA_CONTEXT_FAILED:
                 goto error;
                 break;
             case PA_CONTEXT_UNCONNECTED:
-                break;
-
-
             case PA_CONTEXT_CONNECTING:
-                break;
-
             case PA_CONTEXT_AUTHORIZING:
-                break;
-
             case PA_CONTEXT_SETTING_NAME:
                 break;
         }
-
-        if (l_ptrPulseAudioHostApi->state == PA_CONTEXT_READY)
-        {
-            pa_threaded_mainloop_unlock(l_ptrPulseAudioHostApi->mainloop);
-            break;
-        }
-
-        pa_threaded_mainloop_unlock(l_ptrPulseAudioHostApi->mainloop);
-        usleep(100);
     }
 
     pa_threaded_mainloop_lock(l_ptrPulseAudioHostApi->mainloop);
