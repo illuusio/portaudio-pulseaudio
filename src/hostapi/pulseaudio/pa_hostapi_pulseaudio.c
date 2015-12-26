@@ -557,8 +557,6 @@ PaError PaPulseAudio_Initialize(
         }
     }
 
-    pa_threaded_mainloop_lock(l_ptrPulseAudioHostApi->mainloop);
-
     memset(l_ptrPulseAudioHostApi->deviceInfoArray, 0x00,
            sizeof(PaDeviceInfo) * 1024);
     for (i = 0; i < 1024; i++)
@@ -571,8 +569,6 @@ PaError PaPulseAudio_Initialize(
                                       PulseAudioSinkListCb,
                                       l_ptrPulseAudioHostApi);
 
-    pa_threaded_mainloop_unlock(l_ptrPulseAudioHostApi->mainloop);
-
     while (pa_operation_get_state(l_ptrOperation) == PA_OPERATION_RUNNING)
     {
         pa_threaded_mainloop_wait(l_ptrPulseAudioHostApi->mainloop);
@@ -580,13 +576,10 @@ PaError PaPulseAudio_Initialize(
 
     pa_operation_unref(l_ptrOperation);
 
-    pa_threaded_mainloop_lock(l_ptrPulseAudioHostApi->mainloop);
     l_ptrOperation =
         pa_context_get_source_info_list(l_ptrPulseAudioHostApi->context,
                                         PulseAudioSourceListCb,
                                         l_ptrPulseAudioHostApi);
-
-    pa_threaded_mainloop_unlock(l_ptrPulseAudioHostApi->mainloop);
 
     while (pa_operation_get_state(l_ptrOperation) == PA_OPERATION_RUNNING)
     {
