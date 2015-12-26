@@ -559,10 +559,10 @@ PaError PaPulseAudio_Initialize(
 
     pa_threaded_mainloop_lock(l_ptrPulseAudioHostApi->mainloop);
 
+    memset(l_ptrPulseAudioHostApi->deviceInfoArray, 0x00,
+           sizeof(PaDeviceInfo) * 1024);
     for (i = 0; i < 1024; i++)
     {
-        memset(l_ptrPulseAudioHostApi->deviceInfoArray, 0x00,
-               sizeof(PaDeviceInfo) * 1024);
         l_ptrPulseAudioHostApi->pulseaudioDeviceNames[i] = NULL;
     }
 
