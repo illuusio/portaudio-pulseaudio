@@ -272,9 +272,7 @@ PaError PulseAudioCloseStreamCb(
     PaPulseAudioHostApiRepresentation *l_ptrPulseAudioHostApi = stream->hostapi;
     pa_operation *l_ptrOperation = NULL;
 
-    pa_threaded_mainloop_wait(l_ptrPulseAudioHostApi->mainloop);
-
-    if (stream->outStream != NULL)
+    if (stream->outStream != NULL && pa_stream_get_state(stream->outStream) == PA_STREAM_READY)
     {
         /* First we stop (CORK) stream and make sure
          * that we don't write anymore
@@ -311,7 +309,7 @@ PaError PulseAudioCloseStreamCb(
         stream->outBuffer = NULL;
     }
 
-    if (stream->inStream != NULL)
+    if (stream->inStream != NULL && pa_stream_get_state(stream->inStream) == PA_STREAM_READY)
     {
         /* First we stop (CORK) stream and make sure
          * that we don't read anymore
