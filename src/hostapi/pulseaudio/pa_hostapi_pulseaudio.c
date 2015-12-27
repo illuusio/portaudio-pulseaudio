@@ -240,6 +240,9 @@ int _PulseAudioAddAudioDevice(
     int l_iDeviceNameLen = strnlen(PulseAudioSinkSourceName, 1024) + 1;
     char *l_ptrName = NULL;
     char *l_strLocalName = NULL;
+
+    hostapi->deviceInfoArray[hostapi->deviceCount].structVersion = 2;
+    hostapi->deviceInfoArray[hostapi->deviceCount].hostApi = hostapi->hostApiIndex;
     
     hostapi->pulseaudioDeviceNames[hostapi->deviceCount] = PaUtil_GroupAllocateMemory(hostapi->allocations,
                                                            l_iRealNameLen);
@@ -304,10 +307,6 @@ void PulseAudioSinkListCb(
         goto error;
     }
 
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].structVersion = 2;
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].hostApi =
-        l_ptrHostApi->hostApiIndex;
-
     l_strName = l->name;
 
     if (l->description != NULL)
@@ -358,10 +357,6 @@ void PulseAudioSourceListCb(
     {
         goto error;
     }
-
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].structVersion = 2;
-    l_ptrHostApi->deviceInfoArray[l_ptrHostApi->deviceCount].hostApi =
-        l_ptrHostApi->hostApiIndex;
 
     l_strName = l->name;
 
