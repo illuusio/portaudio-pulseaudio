@@ -849,6 +849,7 @@ static PaError PulseAudioBlockingInitRingBuffer(
         return paInsufficientMemory;
     }
 
+    sem_init(&stream->outputSem, 0, 0);
     memset(l_ptrBuffer, 0x00, l_lNumBytes);
     return (PaError) PaUtil_InitializeRingBuffer(rbuf, 1, l_lNumBytes,
                                                  l_ptrBuffer);

@@ -18,7 +18,7 @@
 #include <pulse/pulseaudio.h>
 #include <pulse/simple.h>
 
-
+#include <semaphore.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -100,12 +100,14 @@ extern "C"
 
         PaUtilRingBuffer inputRing;
         PaUtilRingBuffer outputRing;
+        sem_t            outputSem;
 
         /* Used in communication between threads */
         volatile sig_atomic_t callback_finished;        /* bool: are we in the "callback finished" state? */
         volatile sig_atomic_t callbackAbort;    /* Drop frames? */
         volatile sig_atomic_t isActive; /* Is stream in active state? (Between StartStream and StopStream || !paContinue) */
         volatile sig_atomic_t isStopped;        /* Is stream in active state? (Between StartStream and StopStream || !paContinue) */
+        volatile sig_atomic_t outputFull;       /* is WriteStream blocked waiting for space in the ring buffer? */
 
     }
     PaPulseAudioStream;
