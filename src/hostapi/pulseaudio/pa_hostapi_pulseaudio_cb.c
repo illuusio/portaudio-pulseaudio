@@ -208,17 +208,13 @@ void PulseAudioStreamWriteCb(
                                   l_ptrStream->outBuffer,
                                   length);
         numFrames = numBytes / l_ptrStream->outputFrameSize;
-        if( l_ptrStream->outputFull )
-        {
-            l_ptrStream->outputFull = 0;
-            sem_post(&l_ptrStream->outputSem);
-        }
         if( numBytes < length )
         {
             memset( l_ptrStream->outBuffer + numBytes, 0, length - numBytes );
         }
     }
     PaUtil_EndCpuLoadMeasurement(&l_ptrStream->cpuLoadMeasurer, numFrames);
+    pa_threaded_mainloop_signal( l_ptrStream->mainloop, 0 );
 
     if (l_iResult != paContinue)
     {

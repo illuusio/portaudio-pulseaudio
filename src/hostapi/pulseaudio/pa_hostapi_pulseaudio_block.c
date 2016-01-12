@@ -119,6 +119,12 @@ PaError PulseAudioWriteStreamBlock(
     uint8_t *l_ptrData = (uint8_t *) buffer;
     long l_lLength = (frames * l_ptrStream->outputFrameSize);
 
+    /* this is kind of gross, we have this nice lockless RingBuffer and then
+     * lock the mainloop preventing the audio thread from doing anything.
+     * Which is not entirely our fault - we inherit the problem from PulseAudio's
+     * threaded-main-loop which acquires the lock before invoking any callbacks.
+     */
+    pa_threaded_mainloop_lock( l_ptrStream->mainloop );
     while( l_lLength > 0 )
     {
         long l_written =
@@ -126,13 +132,9 @@ PaError PulseAudioWriteStreamBlock(
         l_lLength -= l_written;
         l_ptrData += l_written;
         if( l_lLength > 0 )
-        {
-            if( l_ptrStream->outputFull )
-                sem_wait( &l_ptrStream->outputSem );
-            else
-                l_ptrStream->outputFull = 1;
-        }
+            pa_threaded_mainloop_wait( l_ptrStream->mainloop );
     }
+    pa_threaded_mainloop_unlock( l_ptrStream->mainloop );
     return paNoError;
 }
 
