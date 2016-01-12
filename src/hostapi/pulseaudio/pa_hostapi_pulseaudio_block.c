@@ -71,35 +71,17 @@ PaError PulseAudioReadStreamBlock(
     uint8_t *l_ptrData = (uint8_t *) buffer;
     long l_lLength = (frames * l_ptrStream->inputFrameSize);
 
-    pa_threaded_mainloop_lock(l_ptrStream->mainloop);
-
-
-
+    pa_threaded_mainloop_lock( l_ptrStream->mainloop );
     while (l_lLength > 0)
     {
-        if (PaUtil_GetRingBufferReadAvailable(&l_ptrStream->inputRing) >
-            l_lLength)
-        {
-            l_iRet =
-                PaUtil_ReadRingBuffer(&l_ptrStream->inputRing, l_ptrData,
-                                      l_lLength);
-            l_lLength = 0;
-        }
-        else
-        {
-            l_lReadable =
-                PaUtil_GetRingBufferReadAvailable(&l_ptrStream->inputRing);
-            l_iRet =
-                PaUtil_ReadRingBuffer(&l_ptrStream->inputRing, l_ptrData,
-                                      l_lReadable);
-            l_ptrData += l_lReadable;
-            l_lLength -= l_lReadable;
-        }
-
-        pa_threaded_mainloop_wait(l_ptrStream->mainloop);
+        long l_read = PaUtil_ReadRingBuffer( &l_ptrStream->inputRing, l_ptrData,
+                                             l_lLength );
+        l_ptrData += l_read;
+        l_lLength -= l_read;
+        if ( l_lLength > 0 )
+            pa_threaded_mainloop_wait( l_ptrStream->mainloop );
     }
-
-    pa_threaded_mainloop_unlock(l_ptrStream->mainloop);
+    pa_threaded_mainloop_unlock( l_ptrStream->mainloop );
     return paNoError;
 }
 
