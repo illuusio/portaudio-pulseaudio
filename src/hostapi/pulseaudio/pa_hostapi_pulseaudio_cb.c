@@ -146,16 +146,16 @@ void PulseAudioStreamReadCb(
     {
         PaUtil_WriteRingBuffer(&l_ptrStream->inputRing, l_ptrStream->inBuffer,
                                l_lBufferSize);
+        // XXX should check whether all bytes were actually written
     }
+
+    pa_threaded_mainloop_signal(l_ptrStream->mainloop, 0);
 
     if (l_iResult != paContinue)
     {
         l_ptrStream->isActive = 0;
         return;
     }
-
-
-    pa_threaded_mainloop_signal(l_ptrStream->mainloop, 0);
 }
 
 void PulseAudioStreamWriteCb(
