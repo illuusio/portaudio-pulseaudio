@@ -146,16 +146,16 @@ void PulseAudioStreamReadCb(
     {
         PaUtil_WriteRingBuffer(&l_ptrStream->inputRing, l_ptrStream->inBuffer,
                                l_lBufferSize);
+        // XXX should check whether all bytes were actually written
     }
+
+    pa_threaded_mainloop_signal(l_ptrStream->mainloop, 0);
 
     if (l_iResult != paContinue)
     {
         l_ptrStream->isActive = 0;
         return;
     }
-
-
-    pa_threaded_mainloop_signal(l_ptrStream->mainloop, 0);
 }
 
 void PulseAudioStreamWriteCb(
@@ -202,22 +202,18 @@ void PulseAudioStreamWriteCb(
     {
         PaUtil_BeginCpuLoadMeasurement(&l_ptrStream->cpuLoadMeasurer);
         // fprintf(stderr, "Portaudio [PulseAudio (PulseAudioStreamWriteCb)]: There is no callback function even PORTAUDIO Callback mode is ON! can write %ld/%ld\n",length,PaUtil_GetRingBufferReadAvailable(&l_ptrStream->outputRing));
-        long l_iReadCount =
-            l_ptrStream->outputFrameSize *
-            PaUtil_GetRingBufferReadAvailable(&l_ptrStream->outputRing);
-
-
-        if (l_iReadCount >= (length * l_ptrStream->outputFrameSize))
-        {
+        long numBytes =
             PaUtil_ReadRingBuffer(&l_ptrStream->outputRing,
-                                  l_ptrStream->outBuffer, length);
-        }
-        else if (l_iReadCount < length && l_iReadCount > 0)
+                                  l_ptrStream->outBuffer,
+                                  length);
+        numFrames = numBytes / l_ptrStream->outputFrameSize;
+        if( numBytes < length )
         {
-            PaUtil_ReadRingBuffer(&l_ptrStream->outputRing,
-                                  l_ptrStream->outBuffer, l_iReadCount);
+            memset( l_ptrStream->outBuffer + numBytes, 0, length - numBytes );
         }
     }
+    PaUtil_EndCpuLoadMeasurement(&l_ptrStream->cpuLoadMeasurer, numFrames);
+    pa_threaded_mainloop_signal( l_ptrStream->mainloop, 0 );
 
     if (l_iResult != paContinue)
     {
@@ -230,10 +226,6 @@ void PulseAudioStreamWriteCb(
     {
         PA_DEBUG(("Portaudio %s: Can't write audio!\n", __FUNCTION__));
     }
-
-
-    PaUtil_EndCpuLoadMeasurement(&l_ptrStream->cpuLoadMeasurer, numFrames);
-    pa_threaded_mainloop_signal(l_ptrStream->mainloop, 0);
 }
 
 
