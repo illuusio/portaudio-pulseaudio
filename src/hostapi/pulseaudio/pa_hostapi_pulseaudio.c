@@ -1054,8 +1054,12 @@ static PaError OpenStream(
                                          PulseAudioStreamStateCb, NULL);
             pa_stream_set_started_callback(stream->outStream,
                                            PulseAudioStreamStartedCb, NULL);
-            pa_stream_set_write_callback(stream->outStream,
-                                         PulseAudioStreamWriteCb, stream);
+            /* If we use callback then use callback in PulseAudio */
+            if (streamCallback)
+            {
+                pa_stream_set_write_callback(stream->outStream,
+                                             PulseAudioStreamWriteCb, stream);
+            }
         }
 
         else
