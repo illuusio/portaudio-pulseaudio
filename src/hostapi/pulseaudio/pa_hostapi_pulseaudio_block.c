@@ -92,31 +92,66 @@ PaError PulseAudioWriteStreamBlock(
     unsigned long frames
 )
 {
-
     PaPulseAudioStream *l_ptrStream = (PaPulseAudioStream *) s;
     PaPulseAudioHostApiRepresentation *l_ptrPulseAudioHostApi =
         l_ptrStream->hostapi;
-    PaError l_iRet = 0;
+    int l_iRet = 0;
     size_t l_lWritable = 0;
     uint8_t *l_ptrData = (uint8_t *) buffer;
     long l_lLength = (frames * l_ptrStream->outputFrameSize);
+    pa_operation *l_ptrOperation = NULL;
 
-    /* this is kind of gross, we have this nice lockless RingBuffer and then
-     * lock the mainloop preventing the audio thread from doing anything.
-     * Which is not entirely our fault - we inherit the problem from PulseAudio's
-     * threaded-main-loop which acquires the lock before invoking any callbacks.
-     */
-    pa_threaded_mainloop_lock( l_ptrStream->mainloop );
-    while( l_lLength > 0 )
+    PaUtil_BeginCpuLoadMeasurement(&l_ptrStream->cpuLoadMeasurer);
+
+    while (l_lLength > 0)
     {
-        long l_written =
-            PaUtil_WriteRingBuffer( &l_ptrStream->outputRing, l_ptrData, l_lLength );
-        l_lLength -= l_written;
-        l_ptrData += l_written;
-        if( l_lLength > 0 )
-            pa_threaded_mainloop_wait( l_ptrStream->mainloop );
+        pa_threaded_mainloop_lock(l_ptrStream->mainloop);
+        l_lWritable = pa_stream_writable_size(l_ptrStream->outStream);
+        pa_threaded_mainloop_unlock(l_ptrStream->mainloop);
+
+        if(l_lWritable > 0)
+        {
+           if(l_lLength < l_lWritable)
+           {
+                l_lWritable = l_lLength;
+           }
+           pa_threaded_mainloop_lock(l_ptrStream->mainloop);
+           l_iRet = pa_stream_write(l_ptrStream->outStream,
+                l_ptrData,
+                l_lWritable,
+                NULL,
+                0,
+                PA_SEEK_RELATIVE
+            );
+
+            l_ptrOperation = pa_stream_update_timing_info(l_ptrStream->outStream,
+                                                          NULL,
+                                                          NULL);
+                                                          pa_threaded_mainloop_unlock(l_ptrStream->mainloop);
+
+            while (pa_operation_get_state(l_ptrOperation) == PA_OPERATION_RUNNING)
+            {
+                usleep(100);
+            }
+            pa_threaded_mainloop_lock(l_ptrStream->mainloop);
+
+            pa_operation_unref(l_ptrOperation);
+            l_ptrOperation = NULL;
+            pa_threaded_mainloop_unlock(l_ptrStream->mainloop);
+
+            l_ptrData += l_lWritable;
+            l_lLength -= l_lWritable;
+        }
+
+        if(l_lLength > 0)
+        {
+            // Sleep small amount of time not burn CPU we block anyway so this is bearable
+            usleep(100);
+        }
+
     }
-    pa_threaded_mainloop_unlock( l_ptrStream->mainloop );
+    PaUtil_EndCpuLoadMeasurement(&l_ptrStream->cpuLoadMeasurer, frames);
+
     return paNoError;
 }
 

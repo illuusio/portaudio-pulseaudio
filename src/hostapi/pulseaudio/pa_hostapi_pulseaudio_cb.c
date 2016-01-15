@@ -201,17 +201,9 @@ void PulseAudioStreamWriteCb(
     }
     else
     {
-        PaUtil_BeginCpuLoadMeasurement(&l_ptrStream->cpuLoadMeasurer);
-        // fprintf(stderr, "Portaudio [PulseAudio (PulseAudioStreamWriteCb)]: There is no callback function even PORTAUDIO Callback mode is ON! can write %ld/%ld\n",length,PaUtil_GetRingBufferReadAvailable(&l_ptrStream->outputRing));
-        long numBytes =
-            PaUtil_ReadRingBuffer(&l_ptrStream->outputRing,
-                                  l_ptrStream->outBuffer,
-                                  length);
-        numFrames = numBytes / l_ptrStream->outputFrameSize;
-        if( numBytes < length )
-        {
-            memset( l_ptrStream->outBuffer + numBytes, 0, length - numBytes );
-        }
+       /* This Shouldn't happen but we are here so note that and fill audio with silence */
+       PA_DEBUG(("Portaudio %s: We are not in callback-mode but we are in callback!\n", __FUNCTION__));
+       memset(l_ptrStream->outBuffer, length, 0x00);
     }
     PaUtil_EndCpuLoadMeasurement(&l_ptrStream->cpuLoadMeasurer, numFrames);
     pa_threaded_mainloop_signal( l_ptrStream->mainloop, 0 );
