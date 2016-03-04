@@ -945,7 +945,7 @@ static PaError OpenStream(
         stream->inputFrameSize =
             Pa_GetSampleSize(inputSampleFormat) * inputChannelCount;
 
-        result = PulseAudioConvertPortaudioFormatToPulseAudio(inputSampleFormat,
+        result = PulseAudioConvertPortaudioFormatToPulseAudio(hostInputSampleFormat,
                                                               &stream->inSampleSpec);
         if (result != paNoError)
             goto error;
@@ -1038,7 +1038,7 @@ static PaError OpenStream(
         stream->outputFrameSize =
             Pa_GetSampleSize(outputSampleFormat) * outputChannelCount;
 
-        result = PulseAudioConvertPortaudioFormatToPulseAudio(outputSampleFormat,
+        result = PulseAudioConvertPortaudioFormatToPulseAudio(hostOutputSampleFormat,
                                                               &stream->outSampleSpec);
         if (result != paNoError)
             goto error;
