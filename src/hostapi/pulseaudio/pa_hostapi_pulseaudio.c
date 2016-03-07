@@ -959,7 +959,7 @@ static PaError OpenStream(
         {
             PA_DEBUG(("Portaudio %s: Invalid input audio spec!\n",
                       __FUNCTION__));
-            result = paUnanticipatedHostError; // should have been caught above
+            result = paUnanticipatedHostError; /* should have been caught above */
             goto error;
         }
 
@@ -1056,7 +1056,7 @@ static PaError OpenStream(
         {
             PA_DEBUG(("Portaudio %s: Invalid audio spec for output!\n",
                       __FUNCTION__));
-            result = paUnanticipatedHostError; // should have been caught above
+            result = paUnanticipatedHostError; /* should have been caught above */
             goto error;
         }
 
