@@ -228,18 +228,20 @@ void PulseAudioStreamWriteCb(
     // Little bit hackish but works.. with float currently
     if(l_ptrStream->outputChannelCount == 1)
     {
-        float l_ptrMonoBuffer[PULSEAUDIO_BUFFER_SIZE];
-        unsigned int l_iStep = 0;
+        void *l_ptrStartOrig = l_ptrStream->outBuffer + length;
+        void *l_ptrStartStereo = l_ptrStream->outBuffer;
+        memcpy(l_ptrStartOrig, l_ptrStartStereo, length);
 
-        for(i = 0; i < length; i ++)
+        for(i = 0; i < length; i += l_ptrStream->outputFrameSize)
         {
-            l_ptrMonoBuffer[l_iStep] = ((float *)l_ptrStream->outBuffer)[i];
-            l_iStep ++;
-            l_ptrMonoBuffer[l_iStep] = ((float *)l_ptrStream->outBuffer)[i];
-            l_iStep ++;
+            memcpy(l_ptrStartStereo, l_ptrStartOrig, l_ptrStream->outputFrameSize);
+            l_ptrStartStereo += l_ptrStream->outputFrameSize;
+            memcpy(l_ptrStartStereo, l_ptrStartOrig, l_ptrStream->outputFrameSize);
+            l_ptrStartStereo += l_ptrStream->outputFrameSize;
+            l_ptrStartOrig += l_ptrStream->outputFrameSize;
         }
         length *= 2;
-        memcpy(l_ptrStream->outBuffer, l_ptrMonoBuffer, length);
+        memcpy(l_ptrStartStereo, l_ptrStartOrig, length);
     }
 
     if (pa_stream_write(s, l_ptrStream->outBuffer, length, NULL, 0, PA_SEEK_RELATIVE))
