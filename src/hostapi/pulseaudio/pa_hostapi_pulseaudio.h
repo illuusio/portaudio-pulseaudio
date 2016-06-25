@@ -85,6 +85,7 @@ extern "C"
         pa_buffer_attr bufferAttr;
         int underflows;
         int latency;
+        int outputChannelCount;
 
         int callbackMode;       /* bool: are we running in callback mode? */
         int rtSched;

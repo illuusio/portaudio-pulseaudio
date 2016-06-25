@@ -168,7 +168,7 @@ void PulseAudioStreamWriteCb(
     PaStreamCallbackTimeInfo timeInfo = { 0, 0, 0 };    /* TODO: IMPLEMENT ME */
     int l_iResult = paContinue;
     long numFrames = 0;
-    int i = 0;
+    unsigned int i = 0;
 
     assert(s);
     assert(length > 0);
@@ -181,22 +181,34 @@ void PulseAudioStreamWriteCb(
 
     memset(l_ptrStream->outBuffer, 0x00, PULSEAUDIO_BUFFER_SIZE);
 
+    if(l_ptrStream->outputChannelCount == 1)
+    {
+        length /= 2;
+    }
+
     if (l_ptrStream->bufferProcessor.streamCallback != NULL)
     {
         PaUtil_BeginBufferProcessing(&l_ptrStream->bufferProcessor, &timeInfo,
                                      0);
         PaUtil_BeginCpuLoadMeasurement(&l_ptrStream->cpuLoadMeasurer);
 
-        PaUtil_SetInterleavedOutputChannels(&l_ptrStream->bufferProcessor, 0,
+        PaUtil_SetInterleavedOutputChannels(&l_ptrStream->bufferProcessor,
+                                            0,
                                             l_ptrStream->outBuffer,
-                                            l_ptrStream->outSampleSpec.
-                                            channels);
+                                            l_ptrStream->outputChannelCount);
         PaUtil_SetOutputFrameCount(&l_ptrStream->bufferProcessor,
                                    length / l_ptrStream->outputFrameSize);
 
         numFrames =
             PaUtil_EndBufferProcessing(&l_ptrStream->bufferProcessor,
                                        &l_iResult);
+
+        /* We can't get as much we want let's calculate new size */
+        if(numFrames != (length / l_ptrStream->outputFrameSize))
+        {
+            fprintf(stderr, "WANTED %d and got %d \n", numFrames, (length / l_ptrStream->outputFrameSize));
+            length = numFrames * l_ptrStream->outputFrameSize;
+        }
     }
     else
     {
@@ -211,12 +223,29 @@ void PulseAudioStreamWriteCb(
         return;
     }
 
-    if (pa_stream_write
-        (s, l_ptrStream->outBuffer, length, NULL, 0, PA_SEEK_RELATIVE))
+    // If mono we assume to have stereo output
+    // So we just copy to other channel..
+    // Little bit hackish but works.. with float currently
+    if(l_ptrStream->outputChannelCount == 1)
+    {
+        float l_ptrMonoBuffer[PULSEAUDIO_BUFFER_SIZE];
+        unsigned int l_iStep = 0;
+
+        for(i = 0; i < length; i ++)
+        {
+            l_ptrMonoBuffer[l_iStep] = ((float *)l_ptrStream->outBuffer)[i];
+            l_iStep ++;
+            l_ptrMonoBuffer[l_iStep] = ((float *)l_ptrStream->outBuffer)[i];
+            l_iStep ++;
+        }
+        length *= 2;
+        memcpy(l_ptrStream->outBuffer, l_ptrMonoBuffer, length);
+    }
+
+    if (pa_stream_write(s, l_ptrStream->outBuffer, length, NULL, 0, PA_SEEK_RELATIVE))
     {
         PA_DEBUG(("Portaudio %s: Can't write audio!\n", __FUNCTION__));
     }
-
 
     PaUtil_EndCpuLoadMeasurement(&l_ptrStream->cpuLoadMeasurer, numFrames);
     pa_threaded_mainloop_signal(l_ptrStream->mainloop, 0);

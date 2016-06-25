@@ -1036,6 +1036,13 @@ static PaError OpenStream(
                                                      &stream->outSampleSpec);
         stream->outSampleSpec.rate = sampleRate;
         stream->outSampleSpec.channels = outputChannelCount;
+        stream->outputChannelCount = outputChannelCount;
+
+        // Really who has mono output anyway but whom I'm to judge?
+        if (stream->outSampleSpec.channels == 1)
+        {
+          stream->outSampleSpec.channels = 2;
+        }
 
         if (!pa_sample_spec_valid(&stream->outSampleSpec))
         {
